@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Lista de Compras</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-grid>
+      <ion-row>
+        <ion-col col-6>
+          <ion-item>
+            <ion-input type="text" color="primary" [(ngModel)]="newItemName" placeholder="Nome Produto"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-6>
+          <button ion-button block solid color="secondary" (click)="AddNewItem()">Adicionar Produto</button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-list>
+  <ion-list *ngFor="let item of items">
+    <ion-grid *ngIf="!item.Deleted">
+      <ion-row>
+        <ion-col col-8>
+          <ion-item>
+            <ion-label color="primary" floating>Produto</ion-label>
+            <ion-input type="text" [disabled]="!item.Active" [(ngModel)]="item.Name"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating>Preço €</ion-label>
+            <ion-input type="number" [disabled]="!item.Active" [(ngModel)]="item.Price" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>   
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating class="smallText">Quantidade</ion-label>
+            <ion-input type="number" [disabled]="!item.Active" [(ngModel)]="item.Quantity" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating class="smallText">Desconto %</ion-label>
+            <ion-input type="number" step="1" [disabled]="!item.Active" [(ngModel)]="item.Discount" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item class="full-height">
+            <ion-label color="primary" fixed>Preço: {{ CalculatePrice(item) | number:'1.2-2'}}€</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-6>
+          <ion-item>
+              <ion-label color="{{ item.Active ? 'primary' : 'dark' }}">{{ item.Active ? "Activo" : "Inactivo" }}</ion-label>
+              <ion-toggle checked="{{ item.Active }}" [(ngModel)]="item.Active" (ionChange)="UpdateList()"></ion-toggle>
+          </ion-item>
+        </ion-col>
+        <ion-col col-6>
+          <ion-item style="height: 44px">
+            <button ion-button block solid color="danger" (click)="WarningDeleteProduct(item)" [disabled]="!item.Active" >Apagar</button>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-list>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-list>
+      <ion-grid>
+        <ion-row>
+          <ion-col col-8>
+            <ion-item>
+              <ion-label color="primary" >Preço Total :</ion-label>
+              <ion-label>{{ totalPrice | number:'1.2-2'}} €</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col col-4>
+            <button ion-button block solid color="danger" (click)="WarningClearAllProducts()">Limpar Tudo</button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list>
+  </ion-toolbar>
+</ion-footer>
