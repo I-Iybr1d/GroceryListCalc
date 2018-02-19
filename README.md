@@ -15,17 +15,17 @@ To Do:
 - Product comparer
 
 ### Installation
-####1. Install Ionic
+1. Install Ionic
 ```bash
 npm install -g cordova ionic
 ```
 
-####2. Install Modules
+2. Install Modules
 ```bash
 npm install
 ```
 
-####2. Run Ionic Server
+3. Run Ionic Server
 ```bash
 ionic serve
 ```
