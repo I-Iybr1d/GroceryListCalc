@@ -2,6 +2,7 @@ import { LanguageController, Language } from '../language/language-controller';
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { AlertController, Platform } from 'ionic-angular';
 import { File } from '@ionic-native/file';
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 
 export class IItem {
   Name: string;
@@ -22,22 +23,33 @@ export class GroceryListComponent {
   items: Array<IItem> = new Array<IItem>();
   totalPrice: number;
   newItemName: string;
-  debug: any;
+  debug: string = "";
     
   constructor (
     public alertCtrl: AlertController,
     private _changeDetectionRef: ChangeDetectorRef,
     private langController: LanguageController,
     private file: File,
-    public platform: Platform)
+    private platform: Platform,
+    private androidPermissions: AndroidPermissions)
   {
+    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.READ_EXTERNAL_STORAGE)
+    .then(result =>  this.debug += result.hasPermission + "\n"), err => this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.READ_EXTERNAL_STORAGE);
+
     this.platform.ready().then(() => {
+      this.file.checkDir(this.file.applicationDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.applicationStorageDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.dataDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.cacheDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.externalApplicationStorageDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.externalDataDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.externalCacheDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
+      this.file.checkDir(this.file.externalRootDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
       // make sure this is on a device, not an emulation (e.g. chrome tools device mode)
-      this.file.listDir(this.file.externalRootDirectory, "Download").then(data=> this.debug = data);
     });
     
       
-    // this.file.checkDir(this.file.externalApplicationStorageDirectory, 'mydir')
+    // this.file.checkDir(this.file.externalApplicationStorageDirectory, 'Download')
     //   .then(_ => console.log('Directory exists'))
     //   .catch(err => console.log('Directory doesnt exist: ' + this.file.externalApplicationStorageDirectory));
     this.language = langController.ReturnNewLanguage("pt-pt", "€");
