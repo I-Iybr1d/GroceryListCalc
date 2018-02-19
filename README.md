@@ -13,3 +13,11 @@ To Do:
 - Total list price discount field
 - Multi page application
 - Product comparer
+
+# Instalation
+1 - Install Ionic
+  npm install -g cordova ionic
+2 - Install Node Modules
+  npm install
+3 - Run Ionic server
+  ionic serve
