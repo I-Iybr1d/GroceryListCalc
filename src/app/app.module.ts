@@ -3,15 +3,17 @@ import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 
-import { ListaCompras } from './lista-compras';
+import { GroceryListComponent } from './grocery-list/grocery-list.component';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { LanguageController } from './language/language-controller';
+import { File } from '@ionic-native/file';
 
 @NgModule({
   declarations: [
     MyApp,
-    ListaCompras,
+    GroceryListComponent,
   ],
   imports: [
     BrowserModule,
@@ -20,12 +22,14 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    ListaCompras
+    GroceryListComponent
   ],
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    LanguageController,
+    File
   ]
 })
 export class AppModule {}

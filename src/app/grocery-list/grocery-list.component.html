@@ -1,0 +1,110 @@
+<ion-header>
+  <ion-navbar>
+    <ion-grid>
+        <ion-row>
+          <ion-col col-8>
+            <ion-title>{{ language.GroceryList }}</ion-title>
+          </ion-col>
+          <ion-col col-2>
+            <button ion-button block solid color="secondary" (click)="UpdateList()"><ion-icon name="folder-open"></ion-icon></button>
+          </ion-col>
+          <ion-col col-2>
+              <button ion-button block solid color="secondary" (click)="UpdateList()"><ion-icon name="arrow-round-down"></ion-icon></button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let file of debug">
+      {{file.name}}
+    </ion-item>
+  </ion-list>
+  <ion-list>
+    <ion-grid>
+      <ion-row>
+        <ion-col col-6>
+          <ion-item>
+            <ion-input type="text" color="primary" [(ngModel)]="newItemName"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-6>
+          <button ion-button block solid color="secondary" (click)="AddNewItem()">{{ language.AddProduct }}</button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-list>
+  <ion-list *ngFor="let item of items">
+    <ion-grid *ngIf="!item.Deleted">
+      <ion-row>
+        <ion-col col-8>
+          <ion-item>
+            <ion-label color="primary" floating>{{ language.Product }}</ion-label>
+            <ion-input type="text" [disabled]="!item.Active" [(ngModel)]="item.Name"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating>{{ language.Price }} {{ language.Currency }}</ion-label>
+            <ion-input type="number" [disabled]="!item.Active" [(ngModel)]="item.Price" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>   
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating class="smallText">{{ language.Quantity }}</ion-label>
+            <ion-input type="number" [disabled]="!item.Active" [(ngModel)]="item.Quantity" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item>
+            <ion-label color="primary" floating class="smallText">{{ language.Discount }} {{ language.PercentageSymbol }}</ion-label>
+            <ion-input type="number" step="1" [disabled]="!item.Active" [(ngModel)]="item.Discount" (ionChange)="UpdateList()"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col col-4>
+          <ion-item class="full-height">
+            <ion-label [color]="item.Active ? 'primary' : 'inactive'" fixed>{{ language.Price }}: {{ CalculatePrice(item) | number:'1.2-2'}} {{ language.Currency }}</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-6>
+          <ion-item>
+              <ion-label color="{{ item.Active ? 'primary' : 'inactive' }}">{{ item.Active ? language.Active : language.Inactive }}</ion-label>
+              <ion-toggle checked="{{ item.Active }}" [(ngModel)]="item.Active" (ionChange)="UpdateList()"></ion-toggle>
+          </ion-item>
+        </ion-col>
+        <ion-col col-6>
+          <ion-item style="height: 44px">
+            <button ion-button block solid color="danger" (click)="WarningDeleteProduct(item)" [disabled]="!item.Active" >{{ language.Delete }}</button>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-list>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-list>
+      <ion-grid>
+        <ion-row>
+          <ion-col col-6>
+            <ion-item>
+              <ion-label color="primary" >{{ language.Total }}:</ion-label>
+              <ion-label>{{ totalPrice | number:'1.2-2'}} {{ language.Currency }}</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col col-2>
+            <button ion-button block solid color="secondary" (click)="UpdateList()"><ion-icon name="refresh"></ion-icon></button>
+          </ion-col>
+          <ion-col col-4>
+            <button ion-button block solid color="danger" (click)="WarningClearAllProducts()">{{ language.ClearAll }}</button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list>
+  </ion-toolbar>
+</ion-footer>

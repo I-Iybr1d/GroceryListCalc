@@ -1,5 +1,7 @@
+import { LanguageController, Language } from '../language/language-controller';
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { AlertController } from 'ionic-angular';
+import { AlertController, Platform } from 'ionic-angular';
+import { File } from '@ionic-native/file';
 
 export class IItem {
   Name: string;
@@ -9,16 +11,40 @@ export class IItem {
   Active: boolean;
 }
 
+declare var cordova: any;
+
 @Component({
-  selector: 'lista-compras',
-  templateUrl: 'lista-compras.html'
+  selector: 'grocery-list',
+  templateUrl: 'grocery-list.component.html'
 })
-export class ListaCompras {
+export class GroceryListComponent {
+  language: Language;
   items: Array<IItem> = new Array<IItem>();
-  totalPrice: number = 0;
-  newItemName: string = 'Sem Nome';
+  totalPrice: number;
+  newItemName: string;
+  debug: any;
     
-  constructor(public alertCtrl: AlertController, private _changeDetectionRef: ChangeDetectorRef) {
+  constructor (
+    public alertCtrl: AlertController,
+    private _changeDetectionRef: ChangeDetectorRef,
+    private langController: LanguageController,
+    private file: File,
+    public platform: Platform)
+  {
+    this.platform.ready().then(() => {
+      // make sure this is on a device, not an emulation (e.g. chrome tools device mode)
+      this.file.listDir(this.file.externalRootDirectory, "Download").then(data=> this.debug = data);
+    });
+    
+      
+    // this.file.checkDir(this.file.externalApplicationStorageDirectory, 'mydir')
+    //   .then(_ => console.log('Directory exists'))
+    //   .catch(err => console.log('Directory doesnt exist: ' + this.file.externalApplicationStorageDirectory));
+    this.language = langController.ReturnNewLanguage("pt-pt", "€");
+    // this.language = langController.ReturnNewLanguage("eng", "€");
+    this.newItemName = this.language.ProductName;
+    this.newItemName = this.file.externalApplicationStorageDirectory;
+    this.totalPrice = 0;
     // this.items.push({ Name: 'Couves', Price: 1.20, Quantity: 1, Discount: 0, Active: true });
     // this.items.push({ Name: 'Sabonete', Price: 2, Quantity: 2, Discount: 0, Active: true });
     // this.items.push({ Name: 'Caixa Plastico', Price: 8, Quantity: 1, Discount: 0, Active: true });
@@ -28,36 +54,34 @@ export class ListaCompras {
   public AddNewItem() {
     let foundItem = this.items.find(item => item.Name == this.newItemName);
     if(foundItem) {
-      let check = this.newItemName.length > 0;
+      let checkNameSize = this.newItemName.length > 0;
       let alert = this.alertCtrl.create(
         {
-          title: 'Nome Inválido!',
-          subTitle: check ? 'Lamentamos, mas o nome que inseriu já existe!' : 'Por favor, insira um nome',
+          title: this.language.InvalidName,
+          subTitle: checkNameSize ? this.language.InvalidNameAlreadyExists : this.language.InvalidNamePleaseInsert,
           buttons: ['OK']});
       alert.present();
     }
     else {
       this.items.push({Name: this.newItemName, Price: 1, Quantity: 1, Discount: 0, Active: true });
     }
-    this.newItemName = 'Sem Nome';
-    this.UpdateList();
+    this.newItemName = this.language.ProductName;
     this._changeDetectionRef.detectChanges();
   }
 
   private WarningDeleteProduct(item) {
     let alert = this.alertCtrl.create({
-      title: 'Eliminar Produto',
-      message: 'Deseja mesmo apagar este produto?',
+      title: this.language.DeleteProduct,
+      message: this.language.WishDeleteProduct,
       buttons: [
         {
-          text: 'Sim',
+          text: this.language.Yes,
           handler: () => {
             this.DeleteItem(item);
           }
         },
         {
-          text: 'Não',
-          role: 'cancel',
+          text: this.language.No
         }
       ]
     });
@@ -66,18 +90,17 @@ export class ListaCompras {
 
   private WarningClearAllProducts() {
     let alert = this.alertCtrl.create({
-      title: 'Limpar Tudo',
-      message: 'Deseja mesmo limpar todos os produtos?',
+      title: this.language.ClearAll,
+      message: this.language.WishClearAll,
       buttons: [
         {
-          text: 'Sim',
+          text: this.language.Yes,
           handler: () => {
             this.RemoveAllProducts();
           }
         },
         {
-          text: 'Não',
-          role: 'cancel',
+          text: this.language.No
         }
       ]
     });
