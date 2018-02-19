@@ -16,8 +16,8 @@ To Do:
 
 # Instalation
 1 - Install Ionic
-  npm install -g cordova ionic
+- npm install -g cordova ionic
 2 - Install Node Modules
-  npm install
+- npm install
 3 - Run Ionic server
-  ionic serve
+- ionic serve
