@@ -6,51 +6,61 @@ export class LanguageController {
         let newLanguage = new Language();
         switch(lang) {
             case "pt-pt":
-                newLanguage.GroceryList = "Lista de Compras";
-                newLanguage.Product = "Produto",
-                newLanguage.AddProduct = "Adicionar Produto";
-                newLanguage.ProductName = "Nome Produto";
-                newLanguage.Total = "Total";
-                newLanguage.ClearAll = "Limpar Tudo";
-                newLanguage.Price = "Preço";
-                newLanguage.Quantity = "Quantidade";
-                newLanguage.Discount = "Desconto";
                 newLanguage.Active = "Activo";
-                newLanguage.Inactive = "Inactivo";
+                newLanguage.AddProduct = "Adicionar Produto"; 
+                newLanguage.ClearAll = "Limpar Tudo";
+                newLanguage.Cancel = "Cancelar";
+                newLanguage.Currency = currency;
                 newLanguage.Delete = "Apagar";
+                newLanguage.DeleteProduct = "Apagar Produto";
+                newLanguage.Discount = "Desconto";
+                newLanguage.Filename = "Nome de Ficheiro";
+                newLanguage.GroceryList = "Lista de Compras";
+                newLanguage.Inactive = "Inactivo";
                 newLanguage.InvalidName = "Nome Inválido!";
                 newLanguage.InvalidNameAlreadyExists = "Lamentamos, mas o nome que inseriu já existe!";
-                newLanguage.InvalidNamePleaseInsert = "Por favor, insira um nome";
-                newLanguage.DeleteProduct = "Apagar Produto";
+                newLanguage.InvalidNamePleaseInsert = "Por favor, insira um nome válido";
+                newLanguage.LoadList = "Carregar Lista";
+                newLanguage.No = "Não";
+                newLanguage.Price = "Preço";
+                newLanguage.Product = "Produto",
+                newLanguage.ProductName = "Nome Produto";
+                newLanguage.Quantity = "Quantidade";
+                newLanguage.Save = "Guardar";
+                newLanguage.SaveList = "Guardar Lista";
+                newLanguage.Total = "Total";
+                newLanguage.WishClearAll = "Deseja limpar todos os produtos?";
                 newLanguage.WishDeleteProduct = "Deseja apagar este produto?";
                 newLanguage.Yes = "Sim";
-                newLanguage.No = "Não";
-                newLanguage.WishClearAll = "Deseja limpar todos os produtos?";
-                newLanguage.Currency = currency;
                 break;
             case "eng":
             default:
-                newLanguage.GroceryList = "Grocery List";
-                newLanguage.Product = "Product",
-                newLanguage.AddProduct = "Add Product";
-                newLanguage.ProductName = "Product Name";
-                newLanguage.Total = "Total";
-                newLanguage.ClearAll = "Clear All";
-                newLanguage.Price = "Price";
-                newLanguage.Quantity = "Quantity";
-                newLanguage.Discount = "Discount";
                 newLanguage.Active = "Active";
-                newLanguage.Inactive = "Inactive";
+                newLanguage.AddProduct = "Add Product";
+                newLanguage.Cancel = "Cancel";
+                newLanguage.ClearAll = "Clear All";
+                newLanguage.Currency = currency;
                 newLanguage.Delete = "Delete";
+                newLanguage.DeleteProduct = "Delete Product";
+                newLanguage.Discount = "Discount";
+                newLanguage.Filename = "Filename";
+                newLanguage.GroceryList = "Grocery List";
+                newLanguage.Inactive = "Inactive";
                 newLanguage.InvalidName = "Invalid Name!";
                 newLanguage.InvalidNameAlreadyExists = "Sorry, but the selected name already exists!";
-                newLanguage.InvalidNamePleaseInsert = "Please insert a name";
-                newLanguage.DeleteProduct = "Delete Product";
+                newLanguage.InvalidNamePleaseInsert = "Please insert a valid name";
+                newLanguage.LoadList = "LoadList";
+                newLanguage.No = "No";
+                newLanguage.Price = "Price";
+                newLanguage.Product = "Product",
+                newLanguage.ProductName = "Product Name";
+                newLanguage.Quantity = "Quantity";
+                newLanguage.Save = "Save";
+                newLanguage.SaveList = "Save List";
+                newLanguage.Total = "Total";
+                newLanguage.WishClearAll = "Do you wish to clear all products?";
                 newLanguage.WishDeleteProduct = "Do you wish to delete this product?";
                 newLanguage.Yes = "Yes";
-                newLanguage.No = "No";
-                newLanguage.WishClearAll = "Do you wish to clear all products?";
-                newLanguage.Currency = currency;
                 break;
         }
         return newLanguage;
@@ -58,26 +68,31 @@ export class LanguageController {
 }
 
 export class Language {
-    public GroceryList: string;
-    public Product: string;
-    public AddProduct: string;
-    public ProductName: string;
-    public Total: string;
-    public ClearAll: string;
-    public Price: string;
-    public Quantity: string;
-    public Discount: string;
     public Active: string;
-    public Inactive: string;
+    public AddProduct: string;
+    public Cancel: string;
+    public ClearAll: string;
+    public Currency: string;
     public Delete: string;
+    public DeleteProduct: string;
+    public Discount: string;
+    public Filename: string;
+    public GroceryList: string;
+    public Inactive: string;
     public InvalidName: string;
     public InvalidNameAlreadyExists: string;
     public InvalidNamePleaseInsert: string;
-    public DeleteProduct: string;
+    public LoadList: string;
+    public No: string;
+    public PercentageSymbol: string = "%";
+    public Price: string;
+    public Product: string;
+    public ProductName: string;
+    public Quantity: string;
+    public Save: string;
+    public SaveList: string;
+    public Total: string;
+    public WishClearAll: string;
     public WishDeleteProduct: string;
     public Yes: string;
-    public No: string;
-    public WishClearAll: string;
-    public Currency: string;
-    public PercentageSymbol: string = "%";
 }

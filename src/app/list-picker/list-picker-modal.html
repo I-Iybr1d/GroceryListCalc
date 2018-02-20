@@ -1,0 +1,42 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>{{title}}</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content padding>
+    <ion-list *ngIf="arrayList.length > 0">
+        <ion-item *ngFor="let list of arrayList; let i = index" [attr.data]="i" (click)="SelecedList(i)">
+            {{ list }}
+        </ion-item>
+    </ion-list>
+    <ion-list *ngIf="arrayList.length == 0">
+        <ion-item>
+            <ion-label>No Lists Available</ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>
+
+<ion-footer>
+    <ion-grid>
+        <ion-row>
+            <ion-col col-3>
+                <button ion-button block color="secondary" (click)="LoadList()">Load</button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col col-3>
+                <button ion-button block color="primary" (click)="RenameList()">Rename</button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col col-3>
+                <button ion-button block color="danger" (click)="DeleteFile()">Delete</button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col col-3>
+                <button ion-button block color="light" (click)="CloseModal()">Close</button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-footer>

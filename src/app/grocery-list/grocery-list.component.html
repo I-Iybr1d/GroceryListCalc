@@ -6,18 +6,22 @@
             <ion-title>{{ language.GroceryList }}</ion-title>
           </ion-col>
           <ion-col col-2>
-            <button ion-button block solid color="secondary" (click)="UpdateList()"><ion-icon name="folder-open"></ion-icon></button>
+            <button ion-button block solid color="secondary" (click)="OpenListPickerModal()"><ion-icon name="folder-open"></ion-icon></button>
           </ion-col>
           <ion-col col-2>
-              <button ion-button block solid color="secondary" (click)="UpdateList()"><ion-icon name="arrow-round-down"></ion-icon></button>
+              <button ion-button block solid color="secondary" (click)="SaveListToFile()"><ion-icon name="arrow-round-down"></ion-icon></button>
           </ion-col>
         </ion-row>
       </ion-grid>
   </ion-navbar>
 </ion-header>
 <ion-content>
-
-      {{debug}}
+  
+  <ion-list *ngIf="debug.length > 0">
+    <ion-item *ngFor="let debugline of debug">
+        {{ debugline }}
+    </ion-item>
+  </ion-list>
 
   <ion-list>
     <ion-grid>

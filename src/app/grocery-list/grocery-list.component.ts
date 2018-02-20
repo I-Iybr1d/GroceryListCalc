@@ -1,8 +1,9 @@
 import { LanguageController, Language } from '../language/language-controller';
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { AlertController, Platform } from 'ionic-angular';
+import { AlertController, Platform, ModalOptions, Modal, ModalController } from 'ionic-angular';
 import { File } from '@ionic-native/file';
-import { AndroidPermissions } from '@ionic-native/android-permissions';
+import * as Globals from '../resources/globals';
+import { ListPickModal } from '../list-picker/list-picker-modal';
 
 export class IItem {
   Name: string;
@@ -11,8 +12,6 @@ export class IItem {
   Discount: number;
   Active: boolean;
 }
-
-declare var cordova: any;
 
 @Component({
   selector: 'grocery-list',
@@ -23,43 +22,24 @@ export class GroceryListComponent {
   items: Array<IItem> = new Array<IItem>();
   totalPrice: number;
   newItemName: string;
-  debug: string = "";
+  debug: Array<string> = new Array<string>();
     
   constructor (
     public alertCtrl: AlertController,
     private _changeDetectionRef: ChangeDetectorRef,
     private langController: LanguageController,
     private file: File,
-    private platform: Platform,
-    private androidPermissions: AndroidPermissions)
+    private modalController: ModalController,
+    private platform: Platform)
   {
-    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.READ_EXTERNAL_STORAGE)
-    .then(result =>  this.debug += result.hasPermission + "\n"), err => this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.READ_EXTERNAL_STORAGE);
-
-    this.platform.ready().then(() => {
-      this.file.checkDir(this.file.applicationDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.applicationStorageDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.dataDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.cacheDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.externalApplicationStorageDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.externalDataDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.externalCacheDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      this.file.checkDir(this.file.externalRootDirectory, "Download").then(() => this.debug += "exist\n").catch(() => this.debug += "not exist\n");
-      // make sure this is on a device, not an emulation (e.g. chrome tools device mode)
-    });
-    
-      
-    // this.file.checkDir(this.file.externalApplicationStorageDirectory, 'Download')
-    //   .then(_ => console.log('Directory exists'))
-    //   .catch(err => console.log('Directory doesnt exist: ' + this.file.externalApplicationStorageDirectory));
     this.language = langController.ReturnNewLanguage("pt-pt", "€");
     // this.language = langController.ReturnNewLanguage("eng", "€");
     this.newItemName = this.language.ProductName;
-    this.newItemName = this.file.externalApplicationStorageDirectory;
+    this.platform.ready().then(() => {
+
+    });
+
     this.totalPrice = 0;
-    // this.items.push({ Name: 'Couves', Price: 1.20, Quantity: 1, Discount: 0, Active: true });
-    // this.items.push({ Name: 'Sabonete', Price: 2, Quantity: 2, Discount: 0, Active: true });
-    // this.items.push({ Name: 'Caixa Plastico', Price: 8, Quantity: 1, Discount: 0, Active: true });
     this.UpdateList();
   }
 
@@ -75,7 +55,8 @@ export class GroceryListComponent {
       alert.present();
     }
     else {
-      this.items.push({Name: this.newItemName, Price: 1, Quantity: 1, Discount: 0, Active: true });
+      this.items.reverse().push({Name: this.newItemName, Price: 1, Quantity: 1, Discount: 0, Active: true });
+      this.items.reverse();
     }
     this.newItemName = this.language.ProductName;
     this._changeDetectionRef.detectChanges();
@@ -86,15 +67,8 @@ export class GroceryListComponent {
       title: this.language.DeleteProduct,
       message: this.language.WishDeleteProduct,
       buttons: [
-        {
-          text: this.language.Yes,
-          handler: () => {
-            this.DeleteItem(item);
-          }
-        },
-        {
-          text: this.language.No
-        }
+        { text: this.language.Yes, handler: () => { this.DeleteItem(item); } },
+        { text: this.language.No }
       ]
     });
     alert.present();
@@ -105,15 +79,8 @@ export class GroceryListComponent {
       title: this.language.ClearAll,
       message: this.language.WishClearAll,
       buttons: [
-        {
-          text: this.language.Yes,
-          handler: () => {
-            this.RemoveAllProducts();
-          }
-        },
-        {
-          text: this.language.No
-        }
+        { text: this.language.Yes, handler: () => { this.RemoveAllProducts(); } },
+        { text: this.language.No }
       ]
     });
     alert.present();
@@ -154,4 +121,73 @@ export class GroceryListComponent {
     }
     return total;
   }
+
+  private SaveListToFile() {
+    this.CreateFolderStructure();
+    let alert = this.alertCtrl.create({
+      title: this.language.SaveList,
+      inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
+      buttons: [
+        { text: this.language.Cancel },
+        { text: this.language.Save, handler: data => {
+          this.file.writeFile(
+            this.file.externalRootDirectory + Globals.RelativePathListFolder,
+            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
+            {replace: true})
+        }}
+      ]
+    });
+    alert.present();
+  }
+
+  private LoadListFromFile() {
+    this.CreateFolderStructure();
+    let alert = this.alertCtrl.create({
+      title: this.language.LoadList,
+      inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
+      buttons: [
+        { text: this.language.Cancel },
+        { text: this.language.Save, handler: data => {
+          this.file.writeFile(
+            this.file.externalRootDirectory + Globals.RelativePathListFolder,
+            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
+            {replace: true})
+        }}
+      ]
+    });
+    alert.present();
+  }
+
+  private CreateFolderStructure() {
+    this.file.checkDir(this.file.externalRootDirectory, Globals.AppName)
+      .catch(() => this.file.createDir(this.file.externalRootDirectory, Globals.AppName, false));
+    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder)
+      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder, false));
+    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameLanguagesFolder)
+      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameLanguagesFolder, false));
+    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameOptionsFolder)
+      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameOptionsFolder, false));
+  }
+
+  private OpenListPickerModal() {
+    let listArrayList = new Array<string>();
+
+    this.file.listDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder)
+      .then(array => array.forEach(line => listArrayList.concat([line.name])));
+
+    const modalOptions: ModalOptions = {
+      enableBackdropDismiss: false
+    };
+
+    let listPickerModal: Modal = this.modalController.create(ListPickModal, {item: listArrayList}, modalOptions);
+
+    listPickerModal.onDidDismiss((data) => {
+      console.log(data.action);
+      console.log(data.index);
+    });
+
+    listPickerModal.present();
+  }
 }
+
+
