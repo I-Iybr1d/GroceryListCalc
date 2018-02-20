@@ -13,6 +13,7 @@ To Do:
 - Total list price discount field
 - Multi page application
 - Product comparer
+- Load/Save Capabilities
 
 ### Installation
 1. Install Ionic
