@@ -27,6 +27,7 @@ export class LanguageController {
                 newLanguage.ProductName = "Nome Produto";
                 newLanguage.Quantity = "Quantidade";
                 newLanguage.Save = "Guardar";
+                newLanguage.SavedLists = "Listas Guardadas";
                 newLanguage.SaveList = "Guardar Lista";
                 newLanguage.Total = "Total";
                 newLanguage.WishClearAll = "Deseja limpar todos os produtos?";
@@ -56,6 +57,7 @@ export class LanguageController {
                 newLanguage.ProductName = "Product Name";
                 newLanguage.Quantity = "Quantity";
                 newLanguage.Save = "Save";
+                newLanguage.SavedLists = "Saved Lists";
                 newLanguage.SaveList = "Save List";
                 newLanguage.Total = "Total";
                 newLanguage.WishClearAll = "Do you wish to clear all products?";
@@ -90,6 +92,7 @@ export class Language {
     public ProductName: string;
     public Quantity: string;
     public Save: string;
+    public SavedLists: string;
     public SaveList: string;
     public Total: string;
     public WishClearAll: string;

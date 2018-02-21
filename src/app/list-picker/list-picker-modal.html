@@ -1,14 +1,10 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>{{title}}</ion-title>
+        <ion-title>{{ Globals.SavedLists }}</ion-title>
     </ion-navbar>
 </ion-header>
 <ion-content padding>
-    <ion-list *ngIf="arrayList.length > 0">
-        <ion-item *ngFor="let list of arrayList; let i = index" [attr.data]="i" (click)="SelecedList(i)">
-            {{ list }}
-        </ion-item>
-    </ion-list>
+            <button ion-button full *ngFor="let list of arrayList; let i = index" [attr.data]="i" [color]="CheckIfSelected(i)" (click)="SelectRow(i)">{{ list }}</button>
     <ion-list *ngIf="arrayList.length == 0">
         <ion-item>
             <ion-label>No Lists Available</ion-label>

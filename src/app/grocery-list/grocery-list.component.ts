@@ -1,4 +1,4 @@
-import { LanguageController, Language } from '../language/language-controller';
+import { LanguageController, Language } from '../translate/language-controller';
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { AlertController, Platform, ModalOptions, Modal, ModalController } from 'ionic-angular';
 import { File } from '@ionic-native/file';
@@ -23,6 +23,8 @@ export class GroceryListComponent {
   totalPrice: number;
   newItemName: string;
   debug: Array<string> = new Array<string>();
+
+  private value: string;
     
   constructor (
     public alertCtrl: AlertController,
@@ -36,7 +38,7 @@ export class GroceryListComponent {
     // this.language = langController.ReturnNewLanguage("eng", "€");
     this.newItemName = this.language.ProductName;
     this.platform.ready().then(() => {
-
+    
     });
 
     this.totalPrice = 0;
@@ -142,20 +144,20 @@ export class GroceryListComponent {
 
   private LoadListFromFile() {
     this.CreateFolderStructure();
-    let alert = this.alertCtrl.create({
-      title: this.language.LoadList,
-      inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
-      buttons: [
-        { text: this.language.Cancel },
-        { text: this.language.Save, handler: data => {
-          this.file.writeFile(
-            this.file.externalRootDirectory + Globals.RelativePathListFolder,
-            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
-            {replace: true})
-        }}
-      ]
-    });
-    alert.present();
+    // let alert = this.alertCtrl.create({
+    //   title: this.language.LoadList,
+    //   inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
+    //   buttons: [
+    //     { text: this.language.Cancel },
+    //     { text: this.language.Save, handler: data => {
+    //       this.file.writeFile(
+    //         this.file.externalRootDirectory + Globals.RelativePathListFolder,
+    //         (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
+    //         {replace: true})
+    //     }}
+    //   ]
+    // });
+    // alert.present();
   }
 
   private CreateFolderStructure() {
@@ -172,14 +174,15 @@ export class GroceryListComponent {
   private OpenListPickerModal() {
     let listArrayList = new Array<string>();
 
-    this.file.listDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder)
-      .then(array => array.forEach(line => listArrayList.concat([line.name])));
-
+    this.file.listDir(this.file.externalRootDirectory, Globals.AppName + Globals.NameListsFolder)
+      .then(array => array.forEach(line => listArrayList.push(line.name)))
+      .catch(array => this.debug.push(this.file.externalRootDirectory + Globals.AppName + Globals.NameListsFolder));
+    
     const modalOptions: ModalOptions = {
       enableBackdropDismiss: false
     };
 
-    let listPickerModal: Modal = this.modalController.create(ListPickModal, {item: listArrayList}, modalOptions);
+    let listPickerModal: Modal = this.modalController.create(ListPickModal, { 'item': listArrayList }, modalOptions);
 
     listPickerModal.onDidDismiss((data) => {
       console.log(data.action);

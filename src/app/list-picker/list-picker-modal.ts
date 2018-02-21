@@ -2,37 +2,47 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavParams, ViewController } from 'ionic-angular';
 
-
 @Component({
     selector: 'list-picker-modal',
     templateUrl: 'list-picker-modal.html',
 })
 export class ListPickModal {
-    private arrayList = this.navParams.get('item');
+    public arrayList = new Array<string>();
+    private selectedIndex: number;
 
-    constructor(private navParams: NavParams, private view: ViewController) { }
+    constructor(private navParams: NavParams, private view: ViewController) {
+        this.arrayList = this.navParams.get('item');
+    }
   
     ionViewWillLoad() {
         console.log(this.arrayList);
     }
 
-    LoadList(i: number) {
+    LoadList(selected: number) {
         let action = "select";
-        this.view.dismiss({ index: i, action: action });
+        this.view.dismiss({ index: this.selectedIndex, action: action });
     }
 
-    RenameList(i: number) {
+    RenameList() {
         let action = "rename";
-        this.view.dismiss({ index: i, action: action });
+        this.view.dismiss({ index: this.selectedIndex, action: action });
     }
 
-    DeleteList(i: number) {
+    DeleteList() {
         let action = "delete";
-        this.view.dismiss({ index: i, action: action });
+        this.view.dismiss({ index: this.selectedIndex, action: action });
     }
 
-    CloseModal(i: number) {
+    CloseModal() {
         let action = "none";
         this.view.dismiss({ index: 0, action: action });
+    }
+
+    private CheckIfSelected(index: number): string {
+        return this.selectedIndex == index ? 'primary' : 'secondary';
+    }
+
+    private SelectRow(index: number) {
+        this.selectedIndex = index;
     }
 }

@@ -16,8 +16,8 @@
   </ion-navbar>
 </ion-header>
 <ion-content>
-  
-  <ion-list *ngIf="debug.length > 0">
+  {{ value }}
+  <ion-list>
     <ion-item *ngFor="let debugline of debug">
         {{ debugline }}
     </ion-item>
