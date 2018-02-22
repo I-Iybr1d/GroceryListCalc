@@ -13,7 +13,6 @@ import { ListPickModal } from './list-picker/list-picker-modal';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { LanguageController } from './translate/language-controller';
 import { File } from '@ionic-native/file';
 
 export function HttpLoaderFactory(http: HttpClient) {
@@ -48,7 +47,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    LanguageController,
     File
   ]
 })

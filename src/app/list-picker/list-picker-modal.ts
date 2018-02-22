@@ -9,6 +9,7 @@ import { IonicPage, NavParams, ViewController } from 'ionic-angular';
 export class ListPickModal {
     public arrayList = new Array<string>();
     private selectedIndex: number;
+    //private regex = new RegExp('^[a-z0-9_-]*$');
 
     constructor(private navParams: NavParams, private view: ViewController) {
         this.arrayList = this.navParams.get('item');

@@ -1,122 +1,71 @@
-import { LanguageController, Language } from '../translate/language-controller';
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, OnChanges, OnDestroy } from '@angular/core';
 import { AlertController, Platform, ModalOptions, Modal, ModalController } from 'ionic-angular';
 import { File } from '@ionic-native/file';
-import * as Globals from '../resources/globals';
-import { ListPickModal } from '../list-picker/list-picker-modal';
+import { TranslateService } from '@ngx-translate/core';
 
-export class IItem {
-  Name: string;
-  Price: number;
-  Quantity: number;
-  Discount: number;
-  Active: boolean;
-}
+import * as Globals from '../resources/globals';
+import * as LanguageSets from '../resources/translation-sets';
+import { IProduct } from './../resources/classes';
+import { ListPickModal } from '../list-picker/list-picker-modal';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'grocery-list',
   templateUrl: 'grocery-list.component.html'
 })
-export class GroceryListComponent {
-  language: Language;
-  items: Array<IItem> = new Array<IItem>();
-  totalPrice: number;
-  newItemName: string;
+export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
+  // Service Variables
+  language = new Array<string>();
+  private languageListener: Subscription;
   debug: Array<string> = new Array<string>();
+  // 
 
-  private value: string;
-    
+  // Data Variables
+  products: Array<IProduct> = new Array<IProduct>();
+  totalPrice: number;
+  // 
+
+  // Initialization
   constructor (
-    public alertCtrl: AlertController,
+    private alertCtrl: AlertController,
     private _changeDetectionRef: ChangeDetectorRef,
-    private langController: LanguageController,
     private file: File,
     private modalController: ModalController,
-    private platform: Platform)
+    private platform: Platform,
+    private translate: TranslateService)
   {
-    this.language = langController.ReturnNewLanguage("pt-pt", "€");
-    // this.language = langController.ReturnNewLanguage("eng", "€");
-    this.newItemName = this.language.ProductName;
-    this.platform.ready().then(() => {
-    
-    });
+    translate.setDefaultLang('pt-pt');
+
 
     this.totalPrice = 0;
     this.UpdateList();
   }
 
+  ngOnInit() {
+    console.log('ngOnInit');
+    this.languageListener = this.translate.get(LanguageSets.groceryListComponent).subscribe(list => this.language = list);
+  }
+  //
+
+  // Behaviours
   public AddNewItem() {
-    let foundItem = this.items.find(item => item.Name == this.newItemName);
-    if(foundItem) {
-      let checkNameSize = this.newItemName.length > 0;
-      let alert = this.alertCtrl.create(
-        {
-          title: this.language.InvalidName,
-          subTitle: checkNameSize ? this.language.InvalidNameAlreadyExists : this.language.InvalidNamePleaseInsert,
-          buttons: ['OK']});
-      alert.present();
-    }
-    else {
-      this.items.reverse().push({Name: this.newItemName, Price: 1, Quantity: 1, Discount: 0, Active: true });
-      this.items.reverse();
-    }
-    this.newItemName = this.language.ProductName;
+    this.products.reverse().push({Name: 'Nada', Price: 1, Quantity: 1, Discount: 0, Active: true });
+    this.products.reverse();
     this._changeDetectionRef.detectChanges();
   }
 
-  private WarningDeleteProduct(item) {
-    let alert = this.alertCtrl.create({
-      title: this.language.DeleteProduct,
-      message: this.language.WishDeleteProduct,
-      buttons: [
-        { text: this.language.Yes, handler: () => { this.DeleteItem(item); } },
-        { text: this.language.No }
-      ]
-    });
-    alert.present();
-  }
-
-  private WarningClearAllProducts() {
-    let alert = this.alertCtrl.create({
-      title: this.language.ClearAll,
-      message: this.language.WishClearAll,
-      buttons: [
-        { text: this.language.Yes, handler: () => { this.RemoveAllProducts(); } },
-        { text: this.language.No }
-      ]
-    });
-    alert.present();
-  }
-
-  public DeleteItem(currentItem) {
-    this.items = this.items.filter(item => item !== currentItem);
-    this.UpdateList();
-  }
-
-  public RemoveAllProducts(){
-    this.items = new Array<IItem>();
-    this.UpdateList();
-  }
-
-  // Private Methods
-  private CompareItemNames(a: IItem, b: IItem) {
-    if (a.Name.toLocaleLowerCase() < b.Name.toLocaleLowerCase()) return -1;
-    if (a.Name.toLocaleLowerCase() > b.Name.toLocaleLowerCase()) return 1;
-    return 0;
-  }
-
   private UpdateList() {
-    this.items.sort(this.CompareItemNames);
-    this.totalPrice = this.CalculateTotalPrice(this.items);
+    this.products.sort(Globals.CompareStrings);
+    this.totalPrice = this.CalculateTotalPrice(this.products);
   }
 
-  private CalculatePrice(item: IItem): number {
+  private CalculatePrice(item: IProduct): number {
     return (item.Price * item.Quantity) * (1 - item.Discount * 0.01)
   }
 
-  private CalculateTotalPrice(items: Array<IItem>): number {
+  private CalculateTotalPrice(items: Array<IProduct>): number {
     let total = 0;
-    for (let item of this.items) {
+    for (let item of this.products) {
       if(item.Active) {
         total += (item.Price * item.Quantity) * (1 - item.Discount * 0.01);
       }
@@ -124,17 +73,102 @@ export class GroceryListComponent {
     return total;
   }
 
-  private SaveListToFile() {
-    this.CreateFolderStructure();
+  public DeleteItem(currentItem) {
+    this.products = this.products.filter(item => item !== currentItem);
+    this.UpdateList();
+  }
+
+  public RemoveAllProducts(){
+    this.products = new Array<IProduct>();
+    this.UpdateList();
+  }
+
+  //// Alerts
+  private WarningDeleteProduct(item) {
     let alert = this.alertCtrl.create({
-      title: this.language.SaveList,
-      inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
+      title: this.language['DeleteProduct'],
+      message: this.language['WishDeleteProduct'],
       buttons: [
-        { text: this.language.Cancel },
-        { text: this.language.Save, handler: data => {
+        { text: this.language['Yes'], handler: () => { this.DeleteItem(item); } },
+        { text: this.language['No'] }
+      ]
+    });
+    alert.present();
+  }
+
+  private WarningClearAllProducts() {
+    let alert = this.alertCtrl.create({
+      title: this.language['ClearAll'],
+      message: this.language['WishClearAll'],
+      buttons: [
+        { text: this.language['Yes'], handler: () => { this.RemoveAllProducts(); } },
+        { text: this.language['No'] }
+      ]
+    });
+    alert.present();
+  }
+  ////
+
+  //// Modals
+  private OpenListPickerModal() {
+    Globals.CreateFolderStructure(this.file);
+
+    // let listArrayList = new Array<string>();
+
+    // this.file.listDir(this.file.externalRootDirectory, Globals.listDir)
+    //   .then(array => array.forEach(line => listArrayList.push(line.name)))
+    //   .catch(array => this.debug.push(this.file.externalRootDirectory + Globals.listDir));
+    
+    // const modalOptions: ModalOptions = {
+    //   enableBackdropDismiss: false
+    // };
+
+    // let listPickerModal: Modal = this.modalController.create(ListPickModal, { 'item': listArrayList }, modalOptions);
+
+    // listPickerModal.onDidDismiss((data) => {
+    //   console.log(data.action);
+    //   console.log(data.index);
+    // });
+
+    // listPickerModal.present();
+  }
+  ////
+
+  // Update
+  ngOnChanges() {
+
+  }
+  //
+
+  // Finalization
+  ngOnDestroy() {
+    this.languageListener.unsubscribe();
+  }
+  //
+
+  public NameChecker(name: string) {
+    const regex = new RegExp('^[a-zA-Z0-9_.-]*$');
+    let alert = this.alertCtrl.create(
+      {
+        title: this.language['InvalidName'],
+        subTitle: name.length > 0 ? this.language['InvalidNameAlreadyExists'] : this.language['InvalidNamePleaseInsert'],
+        buttons: ['OK']});
+    alert.present();
+  }
+
+
+  // Load/Save Methods
+  private SaveListToFile() {
+    Globals.CreateFolderStructure(this.file);
+    let alert = this.alertCtrl.create({
+      title: this.language['SaveList'],
+      inputs: [{ name: 'filename', placeholder: this.language['Filename'] }],
+      buttons: [
+        { text: this.language['Cancel'] },
+        { text: this.language['Save'], handler: data => {
           this.file.writeFile(
-            this.file.externalRootDirectory + Globals.RelativePathListFolder,
-            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
+            this.file.externalRootDirectory + Globals.listDir,
+            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.products),
             {replace: true})
         }}
       ]
@@ -143,7 +177,7 @@ export class GroceryListComponent {
   }
 
   private LoadListFromFile() {
-    this.CreateFolderStructure();
+    Globals.CreateFolderStructure(this.file);
     // let alert = this.alertCtrl.create({
     //   title: this.language.LoadList,
     //   inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
@@ -158,38 +192,6 @@ export class GroceryListComponent {
     //   ]
     // });
     // alert.present();
-  }
-
-  private CreateFolderStructure() {
-    this.file.checkDir(this.file.externalRootDirectory, Globals.AppName)
-      .catch(() => this.file.createDir(this.file.externalRootDirectory, Globals.AppName, false));
-    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder)
-      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameListsFolder, false));
-    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameLanguagesFolder)
-      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameLanguagesFolder, false));
-    this.file.checkDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameOptionsFolder)
-      .catch(() => this.file.createDir(this.file.externalRootDirectory + Globals.AppName, Globals.NameOptionsFolder, false));
-  }
-
-  private OpenListPickerModal() {
-    let listArrayList = new Array<string>();
-
-    this.file.listDir(this.file.externalRootDirectory, Globals.AppName + Globals.NameListsFolder)
-      .then(array => array.forEach(line => listArrayList.push(line.name)))
-      .catch(array => this.debug.push(this.file.externalRootDirectory + Globals.AppName + Globals.NameListsFolder));
-    
-    const modalOptions: ModalOptions = {
-      enableBackdropDismiss: false
-    };
-
-    let listPickerModal: Modal = this.modalController.create(ListPickModal, { 'item': listArrayList }, modalOptions);
-
-    listPickerModal.onDidDismiss((data) => {
-      console.log(data.action);
-      console.log(data.index);
-    });
-
-    listPickerModal.present();
   }
 }
 
