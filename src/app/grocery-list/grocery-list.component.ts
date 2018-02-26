@@ -14,17 +14,20 @@ import { Subscription } from 'rxjs/Subscription';
   templateUrl: 'grocery-list.component.html'
 })
 export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
-  // Service Variables
+  //#region Variables
+  //#region Service Variables
   language = new Array<string>();
   private languageListener: Subscription;
   debug: Array<string> = new Array<string>();
-  // 
+  //#endregion 
 
-  // Data Variables
+  //#region Data Variables
   products: Array<IProduct> = new Array<IProduct>();
   totalPrice: number;
-  // 
+  //#endregion
+  //#endregion
 
+  //#region Hook Cyles
   //#region Initialization
   constructor (
     private alertCtrl: AlertController,
@@ -49,12 +52,13 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
   ngOnChanges() {
 
   }
-    //#endregion
+  //#endregion
 
   //#region Finalization
   ngOnDestroy() {
     this.languageListener.unsubscribe();
   }
+  //#endregion
   //#endregion
 
   //#region Behaviours
@@ -93,18 +97,56 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     this.UpdateList();
   }
 
-  public NameChecker(name: string) {
+  private ApplyListFileAction(action: string, filename: string ){
+    switch(action){
+      case "load": this.LoadListFromFile(filename); break;
+      case "rename": this.ShowRenameListAlert(filename); break;
+      case "delete": this.DeleteListFile(filename); break;
+    }
+  }
+
+  public CheckValidFilename(filename: string): boolean {
+    if(filename.length < 4) {
+      this.ShowInvalidListNameAlert(this.language["InvalidNameTooShort"]);
+      return false;
+    }
+
     const regex = new RegExp('^[a-zA-Z0-9_.-]*$');
-    let alert = this.alertCtrl.create(
-      {
-        title: this.language['InvalidName'],
-        subTitle: name.length > 0 ? this.language['InvalidNameAlreadyExists'] : this.language['InvalidNamePleaseInsert'],
-        buttons: ['OK']});
-    alert.present();
+    if(regex.test(filename)) {
+      return true;
+    }
+    this.ShowInvalidListNameAlert(this.language['InvalidNamePleaseInsert']);
+    return false;
+
   }
   //#endregion
 
   //#region Alerts
+
+  public ShowInvalidListNameAlert(warning: string)
+  {
+    let alert = this.alertCtrl.create({
+      title: this.language['InvalidName'],
+      message: warning,
+      buttons: ['OK']
+    });
+    alert.present();
+  }
+  private SaveListToFile() {
+    Globals.CreateFolderStructure(this.file);
+    let alert = this.alertCtrl.create({
+      title: this.language['SaveList'],
+      inputs: [{ name: 'filename', placeholder: this.language['Filename'] }],
+      buttons: [
+        { text: this.language['Cancel'] },
+        { text: this.language['Save'], handler: data => {
+          this.WriteListFile(data.filename);
+        }}
+      ]
+    });
+    alert.present();
+  }
+
   private WarningDeleteProduct(item) {
     let alert = this.alertCtrl.create({
       title: this.language['DeleteProduct'],
@@ -128,12 +170,24 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     });
     alert.present();
   }
+
+  private ShowRenameListAlert(oldFilename: string){
+    let alert = this.alertCtrl.create({
+      title: this.language['Rename'],
+      message: this.language['ChoseNewListName'],
+      inputs: [{ name: 'listname', placeholder: this.language['ListName'] }],
+      buttons: [
+        { text: this.language['Cancel'] },
+        { text: this.language['Save'], handler: data => { this.RenameListFile(oldFilename, data.listname); }}
+      ]
+    });
+    alert.present();
+  }
   //#endregion
 
   //#region Modals
   private OpenListPickerModal() {
     Globals.CreateFolderStructure(this.file);
-
     let listArrayList = new Array<string>();
 
     this.file.listDir(this.file.externalRootDirectory, Globals.listDir)
@@ -150,61 +204,48 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
 
     listPickerModal.onDidDismiss((data) => {
       this.ApplyListFileAction(data.action, data.filename);
-      // this.debug.push(data.index, data.action); 
     });
   }
   //#endregion
 
   //#region IO Methods
-  private SaveListToFile() {
-    Globals.CreateFolderStructure(this.file);
-    let alert = this.alertCtrl.create({
-      title: this.language['SaveList'],
-      inputs: [{ name: 'filename', placeholder: this.language['Filename'] }],
-      buttons: [
-        { text: this.language['Cancel'] },
-        { text: this.language['Save'], handler: data => {
-          this.file.writeFile(
-            this.file.externalRootDirectory + Globals.listDir,
-            (data.filename + ".sav").toLowerCase(), JSON.stringify(this.products),
-            {replace: true})
-        }}
-      ]
-    });
-    alert.present();
-  }
-
   private LoadListFromFile(filename: string) {
     this.file.readAsText(this.file.externalRootDirectory + Globals.listDir, filename)
       .then(loadedFile => this.products = JSON.parse(loadedFile));
   }
 
-  // Not Yet Implemented
+  private WriteListFile(filename: string) {
+    // if(this.CheckValidFilename(filename)) {
+    //   let fileFound = false;
+    //   this.file.checkFile(this.file.externalRootDirectory + Globals.listDir, filename + ".sav")
+    //     .then((found: boolean) =>  fileFound = found);
+  
+    //   if(fileFound) {
+    //     this.ShowInvalidListNameAlert(this.language['InvalidNameAlreadyExists']);
+    //   }
+    //   else {
+        this.file.writeFile(
+          this.file.externalRootDirectory + Globals.listDir,
+          (filename + ".sav").toLowerCase(), JSON.stringify(this.products),
+          {replace: true})  // Unnecessary but still here if file is rostored before check
+    //   }
+    // }
+  }
+
+  private RenameListFile(oldFilename: string, newFilename: string) {
+    let location = this.file.externalRootDirectory + Globals.listDir;
+    if(newFilename != oldFilename) {
+      this.file.moveFile(location, oldFilename, location, newFilename + ".sav")
+      .then(() => this.file.removeFile(location, oldFilename));
+    }
+  }
+
   private DeleteListFile(filename: string) {
     let location = this.file.externalRootDirectory + Globals.listDir;
     this.file.removeFile(location, filename);
   }
-
-  // Not Yet Implemented
-  private RenameListFile(oldFilename: string, newFilename: string) {
-    let location = this.file.externalRootDirectory + Globals.listDir;
-    this.file.moveFile(location, oldFilename, location, newFilename)
-      .then(() => this.file.removeFile(location, oldFilename));
-  }
-
-  private ApplyListFileAction(action: string, filename: string ){
-    switch(action){
-      case "load":
-        this.LoadListFromFile(filename);
-        break;
-      case "rename":
-        break;
-      case "delete":
-        this.DeleteListFile(filename);
-        break;
-    }
-  }
   //#endregion
+
 }
 
 
