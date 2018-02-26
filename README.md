@@ -7,13 +7,13 @@ Current features:
 - Calculates total list price
 
 To Do:
-- Multi language
+- ~~Multi language~~
 - Refresh button for total list price
 - Search bar for name field
 - Total list price discount field
 - Multi page application
 - Product comparer
-- Load/Save Capabilities
+- ~~Load/Save Capabilities~~
 
 ### Installation
 1. Install Ionic
