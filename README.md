@@ -31,6 +31,11 @@ To Do:
 
 
 
+Bugs/Fixes:
+- [Not fixed] Executing any Operation on the List File Modal exits the modal
+- [Not fixed] If and Alert is called from a modal, the message part of the alert does not render
+- [Not fixed] Even if you chose a existing filename to save, it still replaces the old one
+
 ### Installation
 1. Install Ionic
 ```bash

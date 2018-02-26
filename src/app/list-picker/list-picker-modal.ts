@@ -15,7 +15,6 @@ export class ListPickerModal implements OnInit, OnChanges, OnDestroy{
     private selectedIndex: number;
     language = new Array<string>();
     private languageListener: Subscription;
-    //private regex = new RegExp('^[a-z0-9_-]*$');
 
     constructor
     (
