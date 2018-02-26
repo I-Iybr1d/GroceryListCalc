@@ -1,37 +1,30 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>{{ Globals.SavedLists }}</ion-title>
+        <ion-title>{{ language['SavedLists'] }}</ion-title>
     </ion-navbar>
 </ion-header>
 <ion-content padding>
-            <button ion-button full *ngFor="let list of arrayList; let i = index" [attr.data]="i" [color]="CheckIfSelected(i)" (click)="SelectRow(i)">{{ list }}</button>
+    <button ion-button full *ngFor="let list of arrayList; let i = index" [attr.data]="i" [color]="CheckIfSelected(i)" (click)="SelectRow(i)">{{ list }}</button>
     <ion-list *ngIf="arrayList.length == 0">
         <ion-item>
             <ion-label>No Lists Available</ion-label>
         </ion-item>
     </ion-list>
 </ion-content>
-
 <ion-footer>
     <ion-grid>
         <ion-row>
             <ion-col col-3>
-                <button ion-button block color="secondary" (click)="LoadList()">Load</button>
+                <button ion-button block color="secondary" [disabled]="selectedIndex == -1" (click)="LoadList()">{{ language['Load'] }}</button>
             </ion-col>
-        </ion-row>
-        <ion-row>
             <ion-col col-3>
-                <button ion-button block color="primary" (click)="RenameList()">Rename</button>
+                <button ion-button block color="primary" [disabled]="selectedIndex == -1" (click)="RenameList()">{{ language['Rename']}}</button>
             </ion-col>
-        </ion-row>
-        <ion-row>
             <ion-col col-3>
-                <button ion-button block color="danger" (click)="DeleteFile()">Delete</button>
+                <button ion-button block color="danger" [disabled]="selectedIndex == -1" (click)="DeleteList()">{{ language['Delete'] }}</button>
             </ion-col>
-        </ion-row>
-        <ion-row>
             <ion-col col-3>
-                <button ion-button block color="light" (click)="CloseModal()">Close</button>
+                <button ion-button block color="light" (click)="CloseModal()">{{ language['Close'] }}</button>
             </ion-col>
         </ion-row>
     </ion-grid>

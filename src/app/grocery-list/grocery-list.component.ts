@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Globals from '../resources/globals';
 import * as LanguageSets from '../resources/translation-sets';
 import { IProduct } from './../resources/classes';
-import { ListPickModal } from '../list-picker/list-picker-modal';
+import { ListPickerModal } from '../list-picker/list-picker-modal';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -25,7 +25,7 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
   totalPrice: number;
   // 
 
-  // Initialization
+  //#region Initialization
   constructor (
     private alertCtrl: AlertController,
     private _changeDetectionRef: ChangeDetectorRef,
@@ -35,8 +35,6 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     private translate: TranslateService)
   {
     translate.setDefaultLang('pt-pt');
-
-
     this.totalPrice = 0;
     this.UpdateList();
   }
@@ -45,9 +43,21 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     console.log('ngOnInit');
     this.languageListener = this.translate.get(LanguageSets.groceryListComponent).subscribe(list => this.language = list);
   }
-  //
+  //#endregion
 
-  // Behaviours
+  //#region Update
+  ngOnChanges() {
+
+  }
+    //#endregion
+
+  //#region Finalization
+  ngOnDestroy() {
+    this.languageListener.unsubscribe();
+  }
+  //#endregion
+
+  //#region Behaviours
   public AddNewItem() {
     this.products.reverse().push({Name: 'Nada', Price: 1, Quantity: 1, Discount: 0, Active: true });
     this.products.reverse();
@@ -83,7 +93,18 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     this.UpdateList();
   }
 
-  //// Alerts
+  public NameChecker(name: string) {
+    const regex = new RegExp('^[a-zA-Z0-9_.-]*$');
+    let alert = this.alertCtrl.create(
+      {
+        title: this.language['InvalidName'],
+        subTitle: name.length > 0 ? this.language['InvalidNameAlreadyExists'] : this.language['InvalidNamePleaseInsert'],
+        buttons: ['OK']});
+    alert.present();
+  }
+  //#endregion
+
+  //#region Alerts
   private WarningDeleteProduct(item) {
     let alert = this.alertCtrl.create({
       title: this.language['DeleteProduct'],
@@ -107,57 +128,34 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     });
     alert.present();
   }
-  ////
+  //#endregion
 
-  //// Modals
+  //#region Modals
   private OpenListPickerModal() {
     Globals.CreateFolderStructure(this.file);
 
-    // let listArrayList = new Array<string>();
+    let listArrayList = new Array<string>();
 
-    // this.file.listDir(this.file.externalRootDirectory, Globals.listDir)
-    //   .then(array => array.forEach(line => listArrayList.push(line.name)))
-    //   .catch(array => this.debug.push(this.file.externalRootDirectory + Globals.listDir));
+    this.file.listDir(this.file.externalRootDirectory, Globals.listDir)
+      .then(array => array.forEach(line => listArrayList.push(line.name)))
+      .catch(array => this.debug.push(this.file.externalRootDirectory + Globals.listDir));
     
-    // const modalOptions: ModalOptions = {
-    //   enableBackdropDismiss: false
-    // };
+    const modalOptions: ModalOptions = {
+      enableBackdropDismiss: false
+    };
 
-    // let listPickerModal: Modal = this.modalController.create(ListPickModal, { 'item': listArrayList }, modalOptions);
+    let listPickerModal: Modal = this.modalController.create(ListPickerModal, { 'item': listArrayList }, modalOptions);
 
-    // listPickerModal.onDidDismiss((data) => {
-    //   console.log(data.action);
-    //   console.log(data.index);
-    // });
+    listPickerModal.present();
 
-    // listPickerModal.present();
+    listPickerModal.onDidDismiss((data) => {
+      this.ApplyListFileAction(data.action, data.filename);
+      // this.debug.push(data.index, data.action); 
+    });
   }
-  ////
+  //#endregion
 
-  // Update
-  ngOnChanges() {
-
-  }
-  //
-
-  // Finalization
-  ngOnDestroy() {
-    this.languageListener.unsubscribe();
-  }
-  //
-
-  public NameChecker(name: string) {
-    const regex = new RegExp('^[a-zA-Z0-9_.-]*$');
-    let alert = this.alertCtrl.create(
-      {
-        title: this.language['InvalidName'],
-        subTitle: name.length > 0 ? this.language['InvalidNameAlreadyExists'] : this.language['InvalidNamePleaseInsert'],
-        buttons: ['OK']});
-    alert.present();
-  }
-
-
-  // Load/Save Methods
+  //#region IO Methods
   private SaveListToFile() {
     Globals.CreateFolderStructure(this.file);
     let alert = this.alertCtrl.create({
@@ -176,23 +174,37 @@ export class GroceryListComponent implements OnInit, OnChanges, OnDestroy{
     alert.present();
   }
 
-  private LoadListFromFile() {
-    Globals.CreateFolderStructure(this.file);
-    // let alert = this.alertCtrl.create({
-    //   title: this.language.LoadList,
-    //   inputs: [{ name: Globals.Filename, placeholder: this.language.Filename }],
-    //   buttons: [
-    //     { text: this.language.Cancel },
-    //     { text: this.language.Save, handler: data => {
-    //       this.file.writeFile(
-    //         this.file.externalRootDirectory + Globals.RelativePathListFolder,
-    //         (data.filename + ".sav").toLowerCase(), JSON.stringify(this.items),
-    //         {replace: true})
-    //     }}
-    //   ]
-    // });
-    // alert.present();
+  private LoadListFromFile(filename: string) {
+    this.file.readAsText(this.file.externalRootDirectory + Globals.listDir, filename)
+      .then(loadedFile => this.products = JSON.parse(loadedFile));
   }
+
+  // Not Yet Implemented
+  private DeleteListFile(filename: string) {
+    let location = this.file.externalRootDirectory + Globals.listDir;
+    this.file.removeFile(location, filename);
+  }
+
+  // Not Yet Implemented
+  private RenameListFile(oldFilename: string, newFilename: string) {
+    let location = this.file.externalRootDirectory + Globals.listDir;
+    this.file.moveFile(location, oldFilename, location, newFilename)
+      .then(() => this.file.removeFile(location, oldFilename));
+  }
+
+  private ApplyListFileAction(action: string, filename: string ){
+    switch(action){
+      case "load":
+        this.LoadListFromFile(filename);
+        break;
+      case "rename":
+        break;
+      case "delete":
+        this.DeleteListFile(filename);
+        break;
+    }
+  }
+  //#endregion
 }
 
 

@@ -23,4 +23,12 @@ export const groceryListComponent = [
     'WishClearAll',
     'WishDeleteProduct',
     'Yes'
-  ];
+];
+
+export const listPickerModal = [
+  'SavedLists',
+  'Load',
+  'Rename',
+  'Delete',
+  'Close'
+];

@@ -9,7 +9,7 @@ import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 
 import { GroceryListComponent } from './grocery-list/grocery-list.component';
-import { ListPickModal } from './list-picker/list-picker-modal';
+import { ListPickerModal } from './list-picker/list-picker-modal';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -23,7 +23,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   declarations: [
     MyApp,
     GroceryListComponent,
-    ListPickModal
+    ListPickerModal
   ],
   imports: [
     BrowserModule,
@@ -41,7 +41,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   entryComponents: [
     MyApp,
     GroceryListComponent,
-    ListPickModal
+    ListPickerModal
   ],
   providers: [
     StatusBar,

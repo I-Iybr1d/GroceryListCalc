@@ -1,42 +1,63 @@
 
-import { Component } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy } from '@angular/core';
 import { IonicPage, NavParams, ViewController } from 'ionic-angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs/Subscription';
+
+import * as LanguageSets from '../resources/translation-sets';
 
 @Component({
     selector: 'list-picker-modal',
     templateUrl: 'list-picker-modal.html',
 })
-export class ListPickModal {
+export class ListPickerModal implements OnInit, OnChanges, OnDestroy{
     public arrayList = new Array<string>();
     private selectedIndex: number;
+    language = new Array<string>();
+    private languageListener: Subscription;
     //private regex = new RegExp('^[a-z0-9_-]*$');
 
-    constructor(private navParams: NavParams, private view: ViewController) {
+    constructor
+    (
+        private navParams: NavParams,
+        private view: ViewController,
+        private translate: TranslateService)
+    {
         this.arrayList = this.navParams.get('item');
+        this.selectedIndex = -1;
     }
   
-    ionViewWillLoad() {
+    ngOnInit() {
         console.log(this.arrayList);
+        this.languageListener = this.translate.get(LanguageSets.listPickerModal).subscribe(list => this.language = list);
+    }
+
+    ngOnChanges() {
+
+    }
+
+    ngOnDestroy() {
+        this.languageListener.unsubscribe();
     }
 
     LoadList(selected: number) {
-        let action = "select";
-        this.view.dismiss({ index: this.selectedIndex, action: action });
+        let action = "load";
+        this.view.dismiss({ action: action, filename: this.arrayList[this.selectedIndex] });
     }
 
     RenameList() {
         let action = "rename";
-        this.view.dismiss({ index: this.selectedIndex, action: action });
+        this.view.dismiss({ action: action, filename: this.arrayList[this.selectedIndex] });
     }
 
     DeleteList() {
         let action = "delete";
-        this.view.dismiss({ index: this.selectedIndex, action: action });
+        this.view.dismiss({ action: action, filename: this.arrayList[this.selectedIndex] });
     }
 
     CloseModal() {
-        let action = "none";
-        this.view.dismiss({ index: 0, action: action });
+        let value = "none";
+        this.view.dismiss({ action: value, filename: value });
     }
 
     private CheckIfSelected(index: number): string {
