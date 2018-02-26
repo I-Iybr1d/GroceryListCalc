@@ -9,7 +9,7 @@ Current features:
 - Has English and Portuguese from Portugal Translations
 
 Version Log -
-v0.2
+v0.1
 - List Products
 - Settable Price per Unit, Quantity and Discount for Each Product
 - Total List Price Calculator
