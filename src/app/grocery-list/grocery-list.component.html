@@ -9,19 +9,13 @@
             <button ion-button block solid color="secondary" (click)="OpenListPickerModal()"><ion-icon name="folder-open"></ion-icon></button>
           </ion-col>
           <ion-col col-2>
-              <button ion-button block solid color="secondary" (click)="SaveListToFile()"><ion-icon name="arrow-round-down"></ion-icon></button>
+              <button ion-button block solid color="secondary" (click)="ShowSaveListToFileAlert()"><ion-icon name="arrow-round-down"></ion-icon></button>
           </ion-col>
         </ion-row>
       </ion-grid>
   </ion-navbar>
 </ion-header>
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let debugline of debug">
-        {{ debugline }}
-    </ion-item>
-  </ion-list>
-
   <ion-list>
     <ion-grid>
       <ion-row>
@@ -37,54 +31,50 @@
     </ion-grid>
   </ion-list>
   <ion-list *ngFor="let product of products">
-    <ion-grid *ngIf="!product.Deleted">
-      <ion-row>
-        <ion-col col-8>
+    <div *ngIf="!product.Deleted">
+      <ion-row (click)="ToggleCollapse(product)">
+        <ion-col col-7>
           <ion-item>
             <ion-label color="primary" floating>{{ language['Product'] }}</ion-label>
-            <ion-input type="text" [disabled]="!product.Active" [(ngModel)]="product.Name"></ion-input>
+            <ion-input type="text" [(ngModel)]="product.Name"></ion-input>
           </ion-item>
         </ion-col>
-        <ion-col col-4>
+        <ion-col col-5>
+          <ion-item>
+              <ion-label color="primary" floating class="smallText">{{ language['Quantity'] }}</ion-label>
+              <ion-input type="number" [(ngModel)]="product.Quantity"></ion-input>
+            </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row [hidden]="product.Colapsed">   
+        <ion-col col-6>
           <ion-item>
             <ion-label color="primary" floating>{{ language['Price'] }} €</ion-label>
-            <ion-input type="number" [disabled]="!product.Active" [(ngModel)]="product.Price" (ionChange)="UpdateList()"></ion-input>
+            <ion-input type="number"  [(ngModel)]="product.Price"></ion-input>
           </ion-item>
         </ion-col>
-      </ion-row>
-      <ion-row>   
-        <ion-col col-4>
-          <ion-item>
-            <ion-label color="primary" floating class="smallText">{{ language['Quantity'] }}</ion-label>
-            <ion-input type="number" [disabled]="!product.Active" [(ngModel)]="product.Quantity" (ionChange)="UpdateList()"></ion-input>
-          </ion-item>
-        </ion-col>
-        <ion-col col-4>
+        <ion-col col-6>
           <ion-item>
             <ion-label color="primary" floating class="smallText">{{ language['Discount'] }} %</ion-label>
-            <ion-input type="number" step="1" [disabled]="!product.Active" [(ngModel)]="product.Discount" (ionChange)="UpdateList()"></ion-input>
+            <ion-input type="number" [(ngModel)]="product.Discount"></ion-input>
           </ion-item>
         </ion-col>
-        <ion-col col-4>
+      </ion-row>
+      <ion-row [hidden]="product.Colapsed">
+        <ion-col col-12>
           <ion-item class="full-height">
-            <ion-label [color]="product.Active ? 'primary' : 'inactive'" fixed>{{ language['Price'] }}: {{ CalculatePrice(product) | number:'1.2-2'}} €</ion-label>
+            <ion-label color="primary">{{ language['TotalPriceProduct'] }}: {{ CalculatePrice(product) | number:'1.2-2'}} €</ion-label>
           </ion-item>
         </ion-col>
       </ion-row>
-      <ion-row>
-        <ion-col col-6>
-          <ion-item>
-              <ion-label color="{{ product.Active ? 'primary' : 'inactive' }}">{{ product.Active ? language['Active'] : language['Inactive'] }}</ion-label>
-              <ion-toggle checked="{{ product.Active }}" [(ngModel)]="product.Active" (ionChange)="UpdateList()"></ion-toggle>
-          </ion-item>
-        </ion-col>
-        <ion-col col-6>
+      <ion-row [hidden]="product.Colapsed">
+        <ion-col col-12>
           <ion-item style="height: 44px">
-            <button ion-button block solid color="danger" (click)="WarningDeleteProduct(product)" [disabled]="!product.Active" >{{ language['Delete'] }}</button>
+            <button ion-button block solid color="danger" (click)="WarningDeleteProduct(product)" >{{ language['Delete'] }}</button>
           </ion-item>
         </ion-col>
       </ion-row>
-    </ion-grid>
+    </div>
   </ion-list>
 </ion-content>
 <ion-footer>

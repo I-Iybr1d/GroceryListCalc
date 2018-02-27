@@ -3,5 +3,5 @@ export class IProduct {
     Price: number;
     Quantity: number;
     Discount: number;
-    Active: boolean;
+    Colapsed: boolean;
   }

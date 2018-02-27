@@ -20,6 +20,7 @@ export const groceryListComponent = [
     'Save',
     'SaveList',
     'Total',
+    'TotalPriceProduct',
     'WishClearAll',
     'WishDeleteProduct',
     'Yes'
