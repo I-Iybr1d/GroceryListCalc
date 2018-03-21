@@ -18,10 +18,14 @@ export class GroceryListComponent implements OnInit, OnDestroy{
   //#region Service Variables
   language = new Array<string>();
   private languageListener: Subscription;
+  filter: string;
   //#endregion 
 
   //#region Data Variables
   products: Array<IProduct> = new Array<IProduct>();
+  filteredProducts: Array<IProduct> = new Array<IProduct>();
+  productStorage: Array<IProduct> = new Array<IProduct>();
+
   totalPrice: number;
   //#endregion
 
@@ -54,12 +58,27 @@ export class GroceryListComponent implements OnInit, OnDestroy{
   //#endregion
 
   //#region Behaviours
+  private SearchFilter($event) {
+    this.productStorage = this.products;
+
+    this.filteredProducts = new Array<IProduct>();
+    let stringToCheck = $event.target.value;
+    if(stringToCheck.length > 2) {
+      this.products.forEach(element => {
+        if(element.Name.toLowerCase().includes(stringToCheck.toLowerCase())) {
+          this.filteredProducts.push(element);
+        }
+      });
+    }
+
+    this.products = this.filteredProducts;
+  }
+
   public ToggleCollapse(product: IProduct) {
     product.Colapsed = !product.Colapsed;
   }
 
   public AddNewItem() {
-
     this.products.reverse().push({Name: this.language['Product'], Price: 1, Quantity: 1, Discount: 0, Colapsed: false });
     this.products.reverse();
     this._changeDetectionRef.detectChanges();

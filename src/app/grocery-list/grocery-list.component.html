@@ -21,7 +21,7 @@
       <ion-row>
         <ion-col col-6>
           <ion-item>
-            <ion-input type="text" color="primary" [(ngModel)]="newItemName" pattern="^[a-zA-Z0-9_.-]*$"></ion-input>
+            <ion-input type="text" color="primary" (ionInput)="searchFilter($event)" pattern="^[a-zA-Z0-9_.-]*$" placeholder="filter"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col col-6>
